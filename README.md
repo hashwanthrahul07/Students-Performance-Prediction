@@ -159,7 +159,7 @@ The script outputs:
 ---
 
 ## Author
-Created as a Data Science project
+Hashwanth Rahul S B
 
 ## License
 MIT License - See LICENSE file for details
