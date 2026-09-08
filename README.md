@@ -1,165 +1,154 @@
-# Students-Performance-Prediction
-"A machine learning project to predict student academic performance using Python"
+# ==========================================================
+# STUDENT PERFORMANCE PREDICTION SYSTEM
+# Machine Learning Project using Python
+# ==========================================================
 
-## Overview
-Trains a machine learning model to predict student pass/fail outcomes based on previous test scores and academic history. The project uses Linear Regression to analyze the relationship between historical performance metrics and final results.
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
-⚠️ **Important - dataset not yet included**
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-The script (student_performance_prediction.py) is complete and fully tested, but needs your actual dataset to produce real results. Download or prepare your student dataset, save it as `data/student_data.csv`, and run the script.
+# -------------------------------
+# STEP 1 : Student Dataset
+# -------------------------------
 
-The charts and CSVs currently in `outputs/` were generated from a synthetic placeholder dataset only to verify the code runs end-to-end — they are **NOT real data** and must not be submitted as-is. Re-run the script after adding the real CSV to regenerate genuine results.
+student_data = {
+    "Study_Hours": [1,2,3,4,5,6,7,8,9,10,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,
+                    1.5,2.2,3.8,4.8,5.8,6.8,7.8,8.8,9.8,10.5,11,12],
+    "Attendance": [60,65,70,72,75,78,80,82,84,86,68,71,73,76,79,81,83,85,
+                   62,67,74,77,80,82,84,86,88,90,91,93],
+    "Assignments": [50,55,58,60,65,68,70,72,75,78,56,59,63,66,69,71,74,77,
+                    52,57,61,64,67,70,73,76,79,82,84,86],
+    "Previous_Marks": [40,45,48,52,55,58,60,64,68,72,46,50,54,57,61,65,69,73,
+                       42,47,53,56,60,63,67,70,74,78,82,85],
+    "Final_Marks": [42,46,50,55,60,64,68,73,78,85,48,53,58,62,66,71,76,81,
+                    44,49,56,60,65,69,74,79,84,88,91,95]
+}
 
----
+df = pd.DataFrame(student_data)
 
-## Expected Dataset
+print("\n========== STUDENT DATA ==========\n")
+print(df)
 
-The script auto-detects these columns (case/whitespace tolerant):
+# -------------------------------
+# STEP 2 : Features and Target
+# -------------------------------
 
-| Column Name | Type | Description |
-|---|---|---|
-| `Student_ID` / `ID` | Integer | Unique student identifier (optional - dropped before modeling) |
-| `Previous_Test_Score` / `Test_Score` / `Score` | Numeric | Student's previous test/exam score (0-100) |
-| `Pass_Fail` / `Result` / `Outcome` | Categorical | Target variable: Pass or Fail |
-| `Attendance` | Numeric | Optional - attendance percentage |
-| `Study_Hours` | Numeric | Optional - average weekly study hours |
-| `Grade_Level` / `Class` | Categorical | Optional - student's current grade/class |
+X = df[["Study_Hours", "Attendance", "Assignments", "Previous_Marks"]]
+y = df["Final_Marks"]
 
-**If your CSV's headers differ**, edit the `COLUMN MAPPING` section near the top of the script.
+# -------------------------------
+# STEP 3 : Split Dataset
+# -------------------------------
 
----
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.20,
+    random_state=42
+)
 
-## What It Does
+# -------------------------------
+# STEP 4 : Train Model
+# -------------------------------
 
-### 1. **Data Cleaning**
-   - Removes null values and duplicate records
-   - Converts Pass/Fail text to binary (0 and 1)
-   - Validates data types and ranges
+model = LinearRegression()
 
-### 2. **Exploratory Data Analysis (EDA)**
-   - Distribution of Pass/Fail outcomes
-   - Score distribution and statistics
-   - Correlation between previous scores and pass/fail results
-   - Heatmap visualizations
+model.fit(X_train, y_train)
 
-### 3. **Data Preprocessing**
-   - Normalization of numeric features (StandardScaler)
-   - Encoding of categorical features (if any)
-   - Train-Test split (80-20 ratio)
+# -------------------------------
+# STEP 5 : Prediction
+# -------------------------------
 
-### 4. **Model Training & Evaluation**
-   - **Linear Regression** model training
-   - Performance metrics: Accuracy, Precision, Recall, F1-Score
-   - Classification report and confusion matrix
-   - Prediction vs Actual visualizations
+y_pred = model.predict(X_test)
 
-### 5. **Output Generation**
-   - Cleaned dataset (CSV)
-   - EDA charts and plots
-   - Model performance report
-   - Confusion matrix visualization
+comparison = pd.DataFrame({
+    "Actual": y_test.values,
+    "Predicted": np.round(y_pred,2)
+})
 
----
+print("\n========== ACTUAL VS PREDICTED ==========\n")
+print(comparison)
 
-## How to Run
+# -------------------------------
+# STEP 6 : Model Evaluation
+# -------------------------------
 
-### Prerequisites
-```bash
-pip install pandas numpy matplotlib seaborn scikit-learn
-```
+print("\n========== MODEL PERFORMANCE ==========\n")
 
-### Steps
+print("Intercept :", model.intercept_)
 
-1. **Download/Prepare Dataset**
-   - Get your student performance dataset
-   - Save it as `data/student_data.csv`
+print("\nCoefficients")
 
-2. **Run the Script**
-   ```bash
-   python student_performance_prediction.py
-   ```
+for name, coef in zip(X.columns, model.coef_):
+    print(f"{name:20s} : {coef:.4f}")
 
-3. **Check Results**
-   - Outputs are generated in `outputs/` folder:
-     - `cleaned_student_data.csv` - processed dataset
-     - `eda_plots/` - visualization charts
-     - `model_report.txt` - performance metrics
-     - `confusion_matrix.png` - prediction accuracy visualization
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred)
 
----
+print("\nMean Absolute Error :", round(mae,2))
+print("Mean Squared Error  :", round(mse,2))
+print("Root Mean Squared Error :", round(rmse,2))
+print("R2 Score :", round(r2,4))
 
-## Project Structure
+# -------------------------------
+# STEP 7 : User Prediction
+# -------------------------------
 
-```
-students-performance-prediction/
-│
-├── student_performance_prediction.py    # Main script
-├── README.md                            # This file
-│
-├── data/
-│   └── student_data.csv                 # Your dataset (not included)
-│
-├── outputs/
-│   ├── cleaned_student_data.csv
-│   ├── model_report.txt
-│   ├── confusion_matrix.png
-│   └── eda_plots/
-│       ├── score_distribution.png
-│       ├── pass_fail_distribution.png
-│       └── score_vs_outcome.png
-│
-└── requirements.txt                     # Python dependencies
-```
+print("\n========== PREDICT STUDENT MARKS ==========\n")
 
----
+hours = float(input("Enter Study Hours : "))
+attendance = float(input("Enter Attendance (%) : "))
+assignment = float(input("Enter Assignment Marks : "))
+previous = float(input("Enter Previous Exam Marks : "))
 
-## Tech Stack
+new_student = pd.DataFrame({
+    "Study_Hours":[hours],
+    "Attendance":[attendance],
+    "Assignments":[assignment],
+    "Previous_Marks":[previous]
+})
 
-- **Python** 3.7+
-- **Pandas** - Data manipulation and analysis
-- **NumPy** - Numerical computing
-- **Scikit-learn** - Machine learning models
-- **Matplotlib** - Data visualization
-- **Seaborn** - Statistical plotting
+prediction = model.predict(new_student)
 
----
+print("\nPredicted Final Marks :", round(prediction[0],2))
 
-## Model Performance
+if prediction[0] >= 90:
+    grade = "A+"
+elif prediction[0] >= 80:
+    grade = "A"
+elif prediction[0] >= 70:
+    grade = "B"
+elif prediction[0] >= 60:
+    grade = "C"
+elif prediction[0] >= 50:
+    grade = "D"
+else:
+    grade = "F"
 
-The script outputs:
-- **Accuracy** - Overall prediction correctness
-- **Precision** - Accuracy of Pass predictions
-- **Recall** - Detection rate of Pass cases
-- **F1-Score** - Harmonic mean of Precision and Recall
-- **Confusion Matrix** - True/False positives and negatives
+print("Predicted Grade :", grade)
 
----
+# -------------------------------
+# STEP 8 : Visualization
+# -------------------------------
 
-## Important Notes
+plt.figure(figsize=(8,6))
+plt.scatter(y_test, y_pred)
+plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--')
+plt.xlabel("Actual Final Marks")
+plt.ylabel("Predicted Final Marks")
+plt.title("Actual vs Predicted Student Marks")
+plt.grid(True)
+plt.show()
 
-✅ The Python script is **complete and tested**
-
-❌ The provided CSV outputs use **synthetic placeholder data only**
-
-✅ After adding real `data/student_data.csv`, re-run to generate **actual results**
-
-⚠️ Do **NOT** submit placeholder outputs as final results
-
----
-
-## Future Enhancements
-
-- [ ] Add more features (study hours, attendance, sleep hours)
-- [ ] Implement additional models (Logistic Regression, Random Forest, SVM)
-- [ ] Cross-validation for better accuracy estimation
-- [ ] Hyperparameter tuning
-- [ ] Feature importance analysis
-- [ ] Web API for real-time predictions
-
----
-
-## Author
-Hashwanth Rahul S B
-
-## License
-MIT License - See LICENSE file for details
+plt.figure(figsize=(8,5))
+plt.bar(X.columns, model.coef_)
+plt.title("Feature Importance")
+plt.xlabel("Features")
+plt.ylabel("Coefficient")
+plt.grid(axis='y')
+plt.show()
