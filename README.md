@@ -1,6 +1,5 @@
 # Students-Performance-Prediction
 "A machine learning project to predict student academic performance using Python"
-# Students Performance Prediction
 
 ## Overview
 Trains a machine learning model to predict student pass/fail outcomes based on previous test scores and academic history. The project uses Linear Regression to analyze the relationship between historical performance metrics and final results.
